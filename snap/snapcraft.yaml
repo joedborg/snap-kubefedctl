@@ -1,0 +1,30 @@
+name: kubefedctl
+base: core18
+version: '0.4.0'
+summary: Command line tool for KubeFed
+description: |
+  Kubernetes Cluster Federation (KubeFed for short) allows you to coordinate
+  the configuration of multiple Kubernetes clusters from a single set of APIs
+  in a hosting cluster. KubeFed aims to provide mechanisms for expressing
+  which clusters should have their configuration managed and what that
+  configuration should be. The mechanisms that KubeFed provides are
+  intentionally low-level, and intended to be foundational for more complex
+  multicluster use cases such as deploying multi-geo applications and disaster
+  recovery.
+grade: stable
+confinement: classic
+
+apps:
+  kubefedctl:
+    command: bin/kubefedctl
+
+parts:
+  kubefedctl:
+    build-snaps:
+      - go
+    plugin: make
+    source: https://github.com/kubernetes-sigs/kubefed.git
+    source-type: git
+    source-tag : v$SNAPCRAFT_PROJECT_VERSION
+    override-build:
+      CGO_ENABLED=0 go build  -ldflags "-X sigs.k8s.io/kubefed/pkg/version.version=v0.4.0 -X sigs.k8s.io/kubefed/pkg/version.gitCommit=6eeeac232dcd7556054d2c2042069684f11a08cc -X sigs.k8s.io/kubefed/pkg/version.gitTreeState="clean" -X sigs.k8s.io/kubefed/pkg/version.buildDate=2020-09-02T21:50:40Z" -o  ../install/bin/kubefedctl cmd/kubefedctl/main.go
