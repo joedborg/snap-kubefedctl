@@ -1,0 +1,36 @@
+name: Build kubefedctl snap
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches: 
+      - master
+
+jobs:
+  build:
+    name: Create snap package
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checking out repo
+      uses: actions/checkout@v2
+    - name: Install lxd
+      run: |
+        sudo snap install lxd
+        sudo /snap/bin/lxd.migrate -yes
+        sudo /snap/bin/lxd waitready
+        sudo /snap/bin/lxd init --auto
+        sudo usermod --append --groups lxd $USER
+    - name: Install snapcraft
+      run: sudo snap install snapcraft --classic
+    - name: Build snap
+      run: |
+        sg lxd -c 'snapcraft --use-lxd'
+        sudo mv kubefedctl*.snap kubefedctl.snap
+    - name: Uploading snap
+      uses: actions/upload-artifact@v1
+      with:
+        name: kubefedctl.snap
+        path: kubefedctl.snap
